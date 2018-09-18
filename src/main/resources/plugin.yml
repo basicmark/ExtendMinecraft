@@ -1,0 +1,15 @@
+name: ExtendMinecraft
+author: basicmark
+description: Plugin layer which allows new blocks, entities etc to be added in vinilla Minecraft
+main: io.github.basicmark.extendminecraft.ExtendMinecraft
+startup: preworld
+url: https://github.com/basicmark/ExtendMinecraft
+depend: []
+softdepend: []
+version: 1.0
+commands:
+    extendminecraft:
+        description: Type /extendminecraft ? for more info
+        usage: /extendminecraft ?
+permissions:
+    

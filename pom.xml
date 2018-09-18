@@ -1,0 +1,71 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>io.github.basicmark.plugin</groupId>
+	<artifactId>ExtendMinecraft</artifactId>
+	<version>1.1</version>
+	<packaging>jar</packaging>
+	<url>https://github.com/basicmark/ExtendMinecraft</url>
+
+	<!-- Project information -->
+	<name>ExtendMinecraft</name>
+	<description>Plugin layer which allows new blocks, entities etc to be added in vinilla Minecraft</description>
+	<licenses>
+		<license>
+		<name>GNU Lesser General Public License 3.0</name>
+		<url>LICENSE.txt</url>
+		<distribution>repo</distribution>
+		<comments>License on all contributions</comments>
+		</license>
+	</licenses>
+
+	<!-- Repositories that contain packages we require -->
+	<repositories>
+		<repository>
+			<id>spigot-repo</id>
+			<url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
+
+	<!-- Packages we're dependant on -->
+	<dependencies>
+		<dependency>
+			<groupId>org.bukkit</groupId>
+			<artifactId>bukkit</artifactId>
+			<version>1.11.2-R0.1-SNAPSHOT</version>
+			<scope>compile</scope>
+			<type>jar</type>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<defaultGoal>install</defaultGoal>
+		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+
+		<!-- The resources that need to be added to the jar -->
+		<resources>
+			<resource>
+				<targetPath>.</targetPath>
+				<filtering>true</filtering>
+				<directory>${basedir}/src/main/resources/</directory>
+				<includes>
+					<include>*.yml</include>
+				</includes>
+			</resource>
+		</resources>
+
+		<plugins>
+			<!-- Configuration of the compiler plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
