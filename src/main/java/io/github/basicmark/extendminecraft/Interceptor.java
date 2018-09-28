@@ -6,8 +6,4 @@ public class Interceptor {
     public Interceptor(ExtendMinecraft plugin) {
         this.plugin = plugin;
     }
-
-    public ExtendMinecraft getPlugin() {
-        return plugin;
-    }
 }

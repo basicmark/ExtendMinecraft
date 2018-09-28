@@ -1,16 +1,10 @@
 package io.github.basicmark.extendminecraft.block;
 
-import io.github.basicmark.extendminecraft.ExtendMinecraft;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
-
 
 public abstract class ExtendBlock {
-    private String fullName;
+    String fullName;
     private Block block;
 
     public ExtendBlock(Block block, String fullName) {

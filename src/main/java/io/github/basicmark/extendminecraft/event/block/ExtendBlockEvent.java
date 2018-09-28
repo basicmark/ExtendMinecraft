@@ -1,7 +1,6 @@
 package io.github.basicmark.extendminecraft.event.block;
 
 import io.github.basicmark.extendminecraft.block.ExtendBlock;
-import io.github.basicmark.extendminecraft.world.ExtendWorld;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 

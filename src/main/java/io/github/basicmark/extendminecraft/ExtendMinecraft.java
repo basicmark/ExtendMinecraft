@@ -4,21 +4,12 @@ import io.github.basicmark.extendminecraft.block.*;
 import io.github.basicmark.extendminecraft.event.block.ExtendBlockChangeEvent;
 import io.github.basicmark.extendminecraft.event.world.WorldEventInterceptor;
 import io.github.basicmark.extendminecraft.world.ExtendWorld;
-import org.bukkit.Chunk;
-import org.bukkit.Material;
+
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import java.util.Set;
-
 
 public class ExtendMinecraft extends JavaPlugin {
     public static ExtendBlockRegistry blockRegistry = new ExtendBlockRegistry(new MissingBlockFactory());
@@ -32,36 +23,19 @@ public class ExtendMinecraft extends JavaPlugin {
 	public void onEnable() {
         instance = this;
         worldEventInterceptor = new WorldEventInterceptor(this);
-        ExtendMinecraft.blockRegistry.add(new TestBlockFactory(1));
-        ExtendMinecraft.blockRegistry.add(new TestBlockFactory(2));
 	}
 
 	public void onDisable() {
- 
+        for (World world : getServer().getWorlds()) {
+            ExtendWorld extendWorld = getWorld(world);
+            extendWorld.saveAll();
+        }
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("extendminecraft")){
-		    if ((args.length == 2) && args[0].equals("add")) {
-                String name = args[1];
-		        if (sender instanceof Player) {
-		            Player player = (Player) sender;
-                    ExtendWorld extendWorld = worldEventInterceptor.getExtendWorld(player.getWorld());
-                    ExtendChunk extChunk = extendWorld.getChunk(player.getLocation().getChunk());
-                    Block block = player.getLocation().getChunk().getBlock(
-                            player.getLocation().getBlockX() & 0xf,
-                            player.getLocation().getBlockY() & 0xff,
-                            player.getLocation().getBlockZ() & 0xf);
-                    ExtendBlock extBlock = blockRegistry.getLoader(name).newBlock(block);
-                    getLogger().info(extBlock.toString());
-                    extChunk.setBlock(extBlock,
-                            player.getLocation().getBlockX() & 0xf,
-                            player.getLocation().getBlockY() & 0xff,
-                            player.getLocation().getBlockZ() & 0xf);
-
-		            block.setType(Material.GOLD_BLOCK,true);
-                    worldEventInterceptor.getExtendWorld(player.getWorld()).save();
-                }
+		    if ((args.length == 1) && args[0].equals("?")) {
+                sender.sendMessage("ExtendMinecraft, a plugin to add custom blocks and more to minecraft");
             }
 			return true;
 		}
@@ -71,6 +45,7 @@ public class ExtendMinecraft extends JavaPlugin {
 	public void setBlock(ExtendBlock extBlock) {
 	    Block block = extBlock.getBukkitBlock();
 	    ExtendBlock beforeExtBlock = getBlock(block);
+
 	    if (beforeExtBlock == null) {
             beforeExtBlock = new NullBlock(block);
         }
@@ -111,6 +86,10 @@ public class ExtendMinecraft extends JavaPlugin {
 
         ExtendBlockChangeEvent changeEvent = new ExtendBlockChangeEvent(extBlock, new NullBlock(block));
         getServer().getPluginManager().callEvent(changeEvent);
+    }
+
+    public ExtendWorld getWorld(World world) {
+        return worldEventInterceptor.getExtendWorld(world);
     }
 }
 

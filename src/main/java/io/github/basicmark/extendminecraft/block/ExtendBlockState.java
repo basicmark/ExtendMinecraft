@@ -3,7 +3,6 @@ package io.github.basicmark.extendminecraft.block;
 import io.github.basicmark.extendminecraft.ExtendMinecraft;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.configuration.MemorySection;
 
 public class ExtendBlockState {
     ExtendBlock extBlockState;

@@ -2,10 +2,10 @@ package io.github.basicmark.extendminecraft;
 
 import io.github.basicmark.extendminecraft.block.ExtendBlock;
 import io.github.basicmark.extendminecraft.block.ExtendBlockFactory;
+import io.github.basicmark.extendminecraft.block.MissingBlock;
 import io.github.basicmark.extendminecraft.world.ExtendWorld;
-import org.bukkit.Bukkit;
+
 import org.bukkit.Chunk;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -16,6 +16,7 @@ public class ExtendChunk {
     private ExtendWorld world;
 	private Chunk chunk;
 	private Map<String, ExtendBlock> extBlocks = new HashMap<String, ExtendBlock>();
+	private boolean loadedBlocks = false;
 
     public ExtendChunk(ExtendWorld world, Chunk chunk) {
         this.world = world;
@@ -46,18 +47,35 @@ public class ExtendChunk {
         return extBlocks.get(getKey(xOffset, yOffset, zOffset));
     }
 
+    public boolean shouldSave() {
+        return loadedBlocks | isExtended();
+    }
+
+    public void clearLoadedBlocks() {
+        loadedBlocks = false;
+    }
+
     public void load(ConfigurationSection config) {
+        /* If there are no blocks in the configuration section then early exit */
+        if (config.getKeys(false).isEmpty()) {
+            return;
+        }
+
+        loadedBlocks = true;
+
         /* Load all the blocks in the chunk first */
         for (String key : config.getKeys(false)) {
             ConfigurationSection blockConfig = config.getConfigurationSection(key);
             String blockType = blockConfig.getString("type");
             ExtendBlockFactory factory = ExtendMinecraft.blockRegistry.getLoader(blockType);
-            //ExtendBlock extBlock = factory.loadBlock(blockConfig.getConfigurationSection("data"), Material.valueOf(blockConfig.getString("material")));
             int offsets[] = getOffsets(key);
             Block block = chunk.getBlock(offsets[0], offsets[1], offsets[2]);
             ExtendBlock extBlock = factory.newBlock(block);
+            if (extBlock instanceof MissingBlock) {
+                MissingBlock missingBlock = (MissingBlock) extBlock;
+                missingBlock.setBlockType(blockType);
+            }
             extBlock.load(blockConfig.getConfigurationSection("data"));
-
             extBlocks.put(key, extBlock);
         }
 
@@ -68,12 +86,12 @@ public class ExtendChunk {
     }
 
     public void save(ConfigurationSection config) {
+        loadedBlocks = true;
         for (String extBlockKey : extBlocks.keySet()) {
             ConfigurationSection blockConfig = config.createSection(extBlockKey);
             ExtendBlock extBlock = extBlocks.get(extBlockKey);
 
             blockConfig.set("type", extBlock.getFullName());
-            //blockConfig.set("material", extBlock.getMaterial().name());
             extBlock.save(blockConfig.createSection("data"));
         }
     }
@@ -81,6 +99,34 @@ public class ExtendChunk {
     public void unload() {
         for (ExtendBlock extBlock : extBlocks.values()) {
             extBlock.unload();
+        }
+    }
+
+    /* Replace the missing block holder with that of an instance of the real block */
+    public void blockRegistoryUpdate(ExtendBlockFactory factory) {
+        boolean updated = false;
+        for (String extBlockKey : extBlocks.keySet()) {
+            ExtendBlock extBlock = extBlocks.get(extBlockKey);
+            if (extBlock instanceof MissingBlock) {
+                MissingBlock missingBlock = (MissingBlock) extBlock;
+                if (missingBlock.getFullName().equals(factory.getFullName())) {
+                    ConfigurationSection blockConfig = missingBlock.getStoredConfig();
+                    ExtendBlock realExtBlock = factory.newBlock(extBlock.getBukkitBlock());
+                    realExtBlock.load(blockConfig);
+                    extBlocks.put(extBlockKey, realExtBlock);
+                    updated = true;
+                }
+            }
+        }
+
+        /*
+         * Updating blocks from missing to their real blocks could impact other blocks and so
+         * notify all ExtendBlocks in the chunk.
+         */
+        if (updated) {
+            for (ExtendBlock extBlock : extBlocks.values()) {
+                extBlock.postChunkLoad();
+            }
         }
     }
 

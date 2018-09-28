@@ -1,7 +1,6 @@
 package io.github.basicmark.extendminecraft.event.block;
 
 import io.github.basicmark.extendminecraft.block.ExtendBlock;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.EquipmentSlot;

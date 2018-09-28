@@ -5,7 +5,6 @@ import org.bukkit.event.HandlerList;
 
 public class ExtendChunkUnloadEvent extends ExtendChunkEvent {
     private static final HandlerList handlers = new HandlerList();
-    private ExtendChunk chunk;
 	private boolean save;
 	private boolean cancel;
 

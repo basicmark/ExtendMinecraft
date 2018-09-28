@@ -2,10 +2,10 @@ package io.github.basicmark.extendminecraft.world;
 
 import io.github.basicmark.extendminecraft.ExtendChunk;
 import io.github.basicmark.extendminecraft.ExtendMinecraft;
+import io.github.basicmark.extendminecraft.block.ExtendBlockFactory;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -44,18 +44,29 @@ public class ExtendWorld {
     }
 
     public void saveAll() {
+        saveAll(true);
+    }
+
+    public void saveAll(boolean saveFile) {
         /* Safety check to make sure all chunks are saved */
         ConfigurationSection chunksSection = data.getConfigurationSection("chunks");
         for (ExtendChunk extChunk : extChunks.values()) {
-            if (extChunk.isExtended()) {
-                ConfigurationSection chunkSection = chunksSection.createSection(getKey(extChunk));
-                extChunk.save(chunkSection);
+            if (extChunk.shouldSave()) {
+                if (extChunk.isExtended()) {
+                    ConfigurationSection chunkSection = chunksSection.createSection(getKey(extChunk));
+                    extChunk.save(chunkSection);
+                } else {
+                    chunksSection.set(getKey(extChunk), null);
+                    extChunk.clearLoadedBlocks();
+                }
             }
         }
-        try {
-            data.save(file);
-        } catch (IOException e) {
-            plugin.getLogger().severe("Failed to save config for " + world.getName());
+        if (saveFile) {
+            try {
+                data.save(file);
+            } catch (IOException e) {
+                plugin.getLogger().severe("Failed to save config for " + world.getName());
+            }
         }
     }
 
@@ -101,8 +112,14 @@ public class ExtendWorld {
         return extChunks.get(chunk);
     }
 
-    public World gtBukkitWorld() {
+    public World getBukkitWorld() {
         return world;
+    }
+
+    public void blockRegistoryUpdate(ExtendBlockFactory factory) {
+        for (ExtendChunk extChunk : extChunks.values()) {
+            extChunk.blockRegistoryUpdate(factory);
+        }
     }
 
     private String getKey(ExtendChunk extChunk) {

@@ -3,7 +3,6 @@ package io.github.basicmark.extendminecraft.event.world;
 import io.github.basicmark.extendminecraft.ExtendChunk;
 import io.github.basicmark.extendminecraft.ExtendMinecraft;
 import io.github.basicmark.extendminecraft.Interceptor;
-import io.github.basicmark.extendminecraft.block.ExtendBlock;
 import io.github.basicmark.extendminecraft.world.ExtendWorld;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -47,7 +46,6 @@ public class WorldEventInterceptor extends Interceptor implements Listener {
         extWorld.load();
 
         /* Fire the extended world event */
-        plugin.getLogger().info("Loaded world" + event.getWorld().getName());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled=true)
@@ -61,12 +59,10 @@ public class WorldEventInterceptor extends Interceptor implements Listener {
 
         /* Remove the world */
         worlds.remove(event.getWorld());
-        //plugin.getLogger().info("Unloaded world" + event.getWorld().getName());
     }
 	
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled=true)
     public void onChunkLoad(ChunkLoadEvent event) {
-        //plugin.getLogger().info("Loading chunk " + event.getWorld().getName() + ":" + event.getChunk().getX() + "," + event.getChunk().getZ());
         /* Create the extended chunk */
         ExtendWorld extWorld = worlds.get(event.getWorld());
         if (extWorld == null) {
@@ -85,7 +81,6 @@ public class WorldEventInterceptor extends Interceptor implements Listener {
         /* Fire the extended event */
         ExtendChunkLoadEvent extEvent = new ExtendChunkLoadEvent(extChunk, event.isNewChunk());
         plugin.getServer().getPluginManager().callEvent(extEvent);
-        //plugin.getLogger().info("Loaded");
     }
 	
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled=true)
@@ -101,8 +96,6 @@ public class WorldEventInterceptor extends Interceptor implements Listener {
             /* Save the extended chunk data */
             extWorld.unloadChunk(extChunk, event.isSaveChunk());
         }
-        //plugin.getLogger().info("Unloaded");
-
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled=true)

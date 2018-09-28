@@ -1,10 +1,7 @@
 package io.github.basicmark.extendminecraft.block;
 
-import io.github.basicmark.extendminecraft.ExtendMinecraft;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
-
 
 public abstract class ExtendBlockFactory<TBlock extends ExtendBlock> {
     private String name;

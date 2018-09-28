@@ -1,15 +1,11 @@
 package io.github.basicmark.extendminecraft.event.block;
 
 import io.github.basicmark.extendminecraft.block.ExtendBlock;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 
 public class ExtendBlockChangeEvent extends ExtendBlockEvent{
     private static final HandlerList handlers = new HandlerList();
-    ExtendBlock beforeBlock;
     ExtendBlock afterBlock;
-
 
     public ExtendBlockChangeEvent(ExtendBlock beforeBlock, ExtendBlock afterBlock) {
         super(beforeBlock);
