@@ -5,11 +5,18 @@ import io.github.basicmark.extendminecraft.event.block.ExtendBlockChangeEvent;
 import io.github.basicmark.extendminecraft.event.world.WorldEventInterceptor;
 import io.github.basicmark.extendminecraft.world.ExtendWorld;
 
+import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.IOException;
 
 public class ExtendMinecraft extends JavaPlugin {
     public static ExtendBlockRegistry blockRegistry = new ExtendBlockRegistry(new MissingBlockFactory());
@@ -90,6 +97,26 @@ public class ExtendMinecraft extends JavaPlugin {
 
     public ExtendWorld getWorld(World world) {
         return worldEventInterceptor.getExtendWorld(world);
+    }
+
+    public void recordLostBlock(World world, Chunk chunk, int XOffset, int YOffset, int ZOffset, ConfigurationSection blockConfig) {
+        getLogger().info("recordLostBlock");
+        File file = new File(getDataFolder() + File.separator + "lostBlocks.yml");
+        YamlConfiguration config = new YamlConfiguration();
+        if (file.exists()) {
+            try {
+                config.load(file);
+            } catch (Exception e) {
+                getLogger().severe("Failed to open/read lostBlocks.yml");
+            }
+        }
+        ConfigurationSection timeConfig = config.createSection("" + System.currentTimeMillis());
+        timeConfig.createSection(world.getName() + "_" + chunk.getX() + "_" + chunk.getZ() + "_" + XOffset + "_" + YOffset + "_" + ZOffset, blockConfig.getValues(true));
+        try {
+            config.save(file);
+        } catch (IOException e) {
+            getLogger().severe("Failed to save lostBlocks.yml");
+        }
     }
 }
 

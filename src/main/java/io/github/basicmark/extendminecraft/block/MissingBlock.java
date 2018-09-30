@@ -35,7 +35,8 @@ public class MissingBlock extends ExtendBlock {
         }
     }
 
-    public void load(ConfigurationSection config) {
+    public boolean load(ConfigurationSection config) {
         storedConfig = config;
+        return true;
     }
 }

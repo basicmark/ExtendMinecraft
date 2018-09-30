@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class ExtendChunk {
@@ -75,8 +76,13 @@ public class ExtendChunk {
                 MissingBlock missingBlock = (MissingBlock) extBlock;
                 missingBlock.setBlockType(blockType);
             }
-            extBlock.load(blockConfig.getConfigurationSection("data"));
-            extBlocks.put(key, extBlock);
+            boolean success = extBlock.load(blockConfig.getConfigurationSection("data"));
+            if (success) {
+                extBlocks.put(key, extBlock);
+            } else {
+                ExtendMinecraft.getInstantce().recordLostBlock(world.getBukkitWorld(), chunk, offsets[0], offsets[1], offsets[2], blockConfig);
+                config.set(key, null);
+            }
         }
 
         /* Then inform them the chunk has been loaded */
@@ -105,16 +111,25 @@ public class ExtendChunk {
     /* Replace the missing block holder with that of an instance of the real block */
     public void blockRegistoryUpdate(ExtendBlockFactory factory) {
         boolean updated = false;
-        for (String extBlockKey : extBlocks.keySet()) {
+        Iterator<String> keyIter = extBlocks.keySet().iterator();
+        //for (String extBlockKey : extBlocks.keySet()) {
+        while(keyIter.hasNext()) {
+            String extBlockKey = keyIter.next();
             ExtendBlock extBlock = extBlocks.get(extBlockKey);
             if (extBlock instanceof MissingBlock) {
                 MissingBlock missingBlock = (MissingBlock) extBlock;
                 if (missingBlock.getFullName().equals(factory.getFullName())) {
                     ConfigurationSection blockConfig = missingBlock.getStoredConfig();
                     ExtendBlock realExtBlock = factory.newBlock(extBlock.getBukkitBlock());
-                    realExtBlock.load(blockConfig);
-                    extBlocks.put(extBlockKey, realExtBlock);
-                    updated = true;
+                    boolean success = realExtBlock.load(blockConfig);
+                    if (success) {
+                        extBlocks.put(extBlockKey, extBlock);
+                        updated = true;
+                    } else {
+                        int offsets[] = getOffsets(extBlockKey);
+                        ExtendMinecraft.getInstantce().recordLostBlock(world.getBukkitWorld(), chunk, offsets[0], offsets[1], offsets[2], blockConfig);
+                        keyIter.remove();
+                    }
                 }
             }
         }

@@ -27,7 +27,8 @@ public abstract class ExtendBlock {
     public void save(ConfigurationSection config) {
     }
 
-    public void load(ConfigurationSection config) {
+    public boolean load(ConfigurationSection config) {
+        return true;
     }
 
     public void unload() {
